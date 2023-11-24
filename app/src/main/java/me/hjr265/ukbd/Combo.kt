@@ -99,6 +99,6 @@ fun Combo(
 
     if (mode == "keyboard")
         Keyboard(hidConnection, togglePlum, settingsPlum)
-    // else
-    //     Touchpad(hidConnection, togglePlum, settingsPlum)
+    else
+        Touchpad(hidConnection, togglePlum, settingsPlum)
 }
