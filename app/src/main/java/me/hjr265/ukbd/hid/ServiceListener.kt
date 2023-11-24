@@ -15,6 +15,7 @@ import java.util.concurrent.Executors
 
 class ServiceListener(
     private val bluetoothAdapter: BluetoothAdapter,
+    private val connection: Connection
 ) : BluetoothProfile.ServiceListener {
     companion object {
         private val SDP: BluetoothHidDeviceAppSdpSettings by lazy {
@@ -43,7 +44,8 @@ class ServiceListener(
             override fun onAppStatusChanged(pluggedDevice: BluetoothDevice?, registered: Boolean) {
                 super.onAppStatusChanged(pluggedDevice, registered)
                 handler.post {
-                    if (!registered) bluetoothAdapter.closeProfileProxy(BluetoothProfile.HID_DEVICE, proxy)
+                    if (registered) connection.onAppRegistered(proxy)
+                    else bluetoothAdapter.closeProfileProxy(BluetoothProfile.HID_DEVICE, proxy)
                 }
             }
 
@@ -51,6 +53,7 @@ class ServiceListener(
             @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
             override fun onConnectionStateChanged(device: BluetoothDevice?, state: Int) {
                 super.onConnectionStateChanged(device, state)
+                if (device != null) connection.onConnectionStateChanged(device, state)
             }
         }
         proxy.registerApp(SDP, null, null, Executors.newCachedThreadPool(), callback)
