@@ -72,7 +72,6 @@ class MainActivity : ComponentActivity() {
         private const val REQUEST_ENABLE_BT = 1
     }
 
-    val deviceAddress = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -98,6 +97,10 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, "Bluetooth permission not granted", Toast.LENGTH_SHORT).show()
             finish()
             return
+        }
+
+        val deviceAddress: Flow<String> = dataStore.data.map { currentPreferences ->
+            currentPreferences[DEVICE_ADDRESS] ?: ""
         }
 
         setContent {

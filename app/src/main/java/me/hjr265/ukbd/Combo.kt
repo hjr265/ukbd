@@ -30,14 +30,16 @@ import me.hjr265.ukbd.hid.ServiceListener
 @Composable
 fun Combo(
     bluetoothAdapter: BluetoothAdapter,
-    deviceAddress: String,
+    deviceAddress: Flow<String>,
     lifeCycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     val context = LocalContext.current
 
+    val deviceAddressState by deviceAddress.collectAsState(initial = "")
+
     var hidConnection by remember { mutableStateOf<Connection?>(null) }
 
-    DisposableEffect(lifeCycleOwner, deviceAddress) {
+    DisposableEffect(lifeCycleOwner, deviceAddressState) {
         val observer = LifecycleEventObserver { source, event ->
             if (event == Lifecycle.Event.ON_PAUSE) {
                 Log.d("", "Disconnecting")
@@ -45,11 +47,11 @@ fun Combo(
                 hidConnection = null
             }
             if (event == Lifecycle.Event.ON_RESUME && hidConnection == null) {
-                Log.d("", "Connecting to ${deviceAddress}")
-                if (deviceAddress == "") {
+                Log.d("", "Connecting to ${deviceAddressState}")
+                if (deviceAddressState == "") {
                     return@LifecycleEventObserver
                 }
-                val device = bluetoothAdapter.getRemoteDevice(deviceAddress)
+                val device = bluetoothAdapter.getRemoteDevice(deviceAddressState)
                 Log.d("", ".. Device Name: ${device.name}")
                 hidConnection = Connection(context, device)
                 val hidServiceListener = ServiceListener(bluetoothAdapter, hidConnection!!)
@@ -82,12 +84,12 @@ fun Combo(
 
     val settingsPlum: @Composable () -> Unit = {
         Plum(onUp = {
-            // context.startActivity(
-            //     Intent(
-            //         context,
-            //         SettingsActivity::class.java
-            //     )
-            // )
+            context.startActivity(
+                Intent(
+                    context,
+                    SettingsActivity::class.java
+                )
+            )
         }) {
             Image(
                 painter = painterResource(id = R.drawable.settings),
