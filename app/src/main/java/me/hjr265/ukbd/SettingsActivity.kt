@@ -25,6 +25,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.jamal.composeprefs3.ui.GroupHeader
 import com.jamal.composeprefs3.ui.PrefsScreen
 import com.jamal.composeprefs3.ui.prefs.ListPref
+import com.jamal.composeprefs3.ui.prefs.TextPref
 import me.hjr265.ukbd.ui.theme.UKbdTheme
 
 class SettingsActivity : ComponentActivity() {
@@ -71,6 +72,31 @@ class SettingsActivity : ComponentActivity() {
                                         summary = "",
                                         useSelectedAsSummary = true,
                                         entries = devices
+                                    )
+                                }
+                            }
+                            prefsGroup({
+                                GroupHeader(
+                                    title = "About",
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }) {
+                                prefsItem {
+                                    TextPref(
+                                        title = "µKbd",
+                                        summary = "µKbd is a virtual bluetooth keyboard and trackpad combo."
+                                    )
+                                }
+                                prefsItem {
+                                    TextPref(
+                                        title = "Version",
+                                        summary = "0.0.1"
+                                    )
+                                }
+                                prefsItem {
+                                    TextPref(
+                                        title = "Licenses",
+                                        summary = "µKbd uses other open source projects."
                                     )
                                 }
                             }
