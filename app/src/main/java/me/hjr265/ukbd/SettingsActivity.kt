@@ -84,7 +84,7 @@ class SettingsActivity : ComponentActivity() {
                                 prefsItem {
                                     TextPref(
                                         title = "µKbd",
-                                        summary = "µKbd is a virtual bluetooth keyboard and trackpad combo."
+                                        summary = "Virtual Bluetooth keyboard and trackpad combo"
                                     )
                                 }
                                 prefsItem {
@@ -96,7 +96,7 @@ class SettingsActivity : ComponentActivity() {
                                 prefsItem {
                                     TextPref(
                                         title = "Licenses",
-                                        summary = "µKbd uses other open source projects."
+                                        summary = "µKbd uses other open source projects"
                                     )
                                 }
                             }
