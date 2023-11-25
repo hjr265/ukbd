@@ -13,21 +13,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.ColorUtils
 import me.hjr265.ukbd.hid.Connection
 import java.util.Date
 
@@ -58,28 +53,16 @@ fun Touchpad(
                     modifier = Modifier.weight(0.5f),
                     onDown = { hidConnection?.mouseDown(0) },
                     onUp = { hidConnection?.mouseDown(0) },
-                    enabled = hidConnection != null
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.leftmouse),
-                        contentDescription = "LEFTMOUSE",
-                        modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.background)
-                    )
-                }
+                    enabled = hidConnection != null,
+                    imageId = R.drawable.leftmouse,
+                )
                 Plum(
                     modifier = Modifier.weight(0.5f),
                     onDown = { hidConnection?.mouseDown(1) },
                     onUp = { hidConnection?.mouseDown(1) },
-                    enabled = hidConnection != null
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.rightmouse),
-                        contentDescription = "RIGHTMOUSE",
-                        modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.background)
-                    )
-                }
+                    enabled = hidConnection != null,
+                    imageId = R.drawable.rightmouse
+                )
             }
 
             var leftDownAt: Long = 0
@@ -93,13 +76,9 @@ fun Touchpad(
                         .padding(1.dp)
                         .clip(shape = RoundedCornerShape(5.dp))
                         .background(
-                            color = if (hidConnection != null) MaterialTheme.colorScheme.secondary else Color(
-                                ColorUtils.blendARGB(
-                                    MaterialTheme.colorScheme.background.toArgb(),
-                                    MaterialTheme.colorScheme.secondary.toArgb(),
-                                    0.70f
-                                )
-                            )
+                            color = with(MaterialTheme.colorScheme.secondary) {
+                                if (hidConnection == null) this.copy(alpha = 0.38f) else this
+                            }
                         )
                         .pointerInteropFilter {
                             var consume = true
@@ -134,15 +113,9 @@ fun Touchpad(
                     modifier = Modifier.weight(1f),
                     onDown = { hidConnection?.mouseDown(2) },
                     onUp = { hidConnection?.mouseDown(2) },
-                    enabled = hidConnection != null
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.scroll),
-                        contentDescription = "SCROLL",
-                        modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.background)
-                    )
-                }
+                    enabled = hidConnection != null,
+                    imageId = R.drawable.scroll
+                )
             }
         }
     }

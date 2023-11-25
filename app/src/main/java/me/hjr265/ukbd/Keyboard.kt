@@ -2,6 +2,7 @@ package me.hjr265.ukbd
 
 import android.annotation.SuppressLint
 import android.view.MotionEvent
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,9 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
@@ -38,7 +37,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.ColorUtils
 import me.hjr265.ukbd.hid.Connection
 
 @SuppressLint("MissingPermission")
@@ -222,7 +220,10 @@ fun Plum(
     onUp: () -> Unit = {},
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit
+    @DrawableRes imageId: Int = 0,
+    imageAlt: String = "",
+    label: String = "",
+    content: @Composable (RowScope.() -> Unit)? = null
 ) {
     val haptic = LocalHapticFeedback.current
 
@@ -261,48 +262,19 @@ fun Plum(
         enabled = enabled,
         shape = RoundedCornerShape(5.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (pressed)
-                Color(
-                    ColorUtils.blendARGB(
-                        MaterialTheme.colorScheme.background.toArgb(),
-                        MaterialTheme.colorScheme.secondary.toArgb(),
-                        0.85f
-                    )
-                )
-            else MaterialTheme.colorScheme.secondary,
-            disabledContainerColor = Color(
-                ColorUtils.blendARGB(
-                    MaterialTheme.colorScheme.background.toArgb(),
-                    MaterialTheme.colorScheme.secondary.toArgb(),
-                    0.70f
-                )
-            )
+            containerColor = with(MaterialTheme.colorScheme.secondary) {
+                if (pressed) this.copy(alpha = 0.76f) else this
+            },
+            disabledContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
         ),
         contentPadding = PaddingValues(0.dp),
-        content = content
-    )
-}
-
-@Composable
-fun PlumSymbol(
-    hidConnection: Connection?,
-    key: String,
-    imageId: Int = 0,
-    label: String = "",
-    modifier: Modifier = Modifier
-) {
-    Plum(
-        modifier = modifier,
-        onDown = { hidConnection?.keyDown(key) },
-        onUp = { hidConnection?.keyUp(key) },
-        enabled = hidConnection != null
     ) {
         if (imageId != 0) {
             Image(
                 painter = painterResource(id = imageId),
-                contentDescription = key,
+                contentDescription = imageAlt,
                 modifier = Modifier.size(16.dp),
-                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.background)
+                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSecondary)
             )
         }
         if (label != "") {
@@ -310,10 +282,34 @@ fun PlumSymbol(
                 label,
                 fontFamily = FontFamily.Monospace,
                 fontSize = if (label.length == 1) 20.sp else TextUnit.Unspecified,
-                color = MaterialTheme.colorScheme.background
+                color = MaterialTheme.colorScheme.onSecondary
             )
         }
+        if (content != null)
+            content()
     }
+}
+
+@Composable
+fun PlumSymbol(
+    hidConnection: Connection?,
+    key: String,
+    imageId: Int = 0,
+    imageAlt: String = "",
+    label: String = "",
+    modifier: Modifier = Modifier,
+    content: @Composable (RowScope.() -> Unit)? = null
+) {
+    Plum(
+        onDown = { hidConnection?.keyDown(key) },
+        onUp = { hidConnection?.keyUp(key) },
+        enabled = hidConnection != null,
+        modifier = modifier,
+        imageId = imageId,
+        imageAlt = imageAlt,
+        label = label,
+        content = content
+    )
 }
 
 @Composable
@@ -321,30 +317,19 @@ fun PlumModifier(
     hidConnection: Connection?,
     key: String,
     imageId: Int = 0,
+    imageAlt: String = "",
     label: String = "",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    content: @Composable (RowScope.() -> Unit)? = null
 ) {
     Plum(
-        modifier = modifier,
         onDown = { hidConnection?.modifierDown(key) },
         onUp = { hidConnection?.modifierUp(key) },
         enabled = hidConnection != null,
-        content = {
-            if (imageId != 0) {
-                Image(
-                    painter = painterResource(id = imageId),
-                    contentDescription = key,
-                    modifier = Modifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.background)
-                )
-            }
-            if (label != "") {
-                Text(
-                    label,
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.background
-                )
-            }
-        }
+        modifier = modifier,
+        imageId = imageId,
+        imageAlt = imageAlt,
+        label = label,
+        content = content
     )
 }
