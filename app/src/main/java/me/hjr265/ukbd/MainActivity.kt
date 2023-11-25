@@ -15,6 +15,7 @@ import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -94,9 +95,10 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.BLUETOOTH_CONNECT
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Toast.makeText(this, "Bluetooth permission not granted", Toast.LENGTH_SHORT).show()
-            finish()
-            return
+            val launcher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+            launcher.launch(
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
         }
 
         val deviceAddress: Flow<String> = dataStore.data.map { currentPreferences ->

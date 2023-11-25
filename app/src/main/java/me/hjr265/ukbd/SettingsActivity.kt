@@ -1,12 +1,16 @@
 package me.hjr265.ukbd
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -29,7 +34,6 @@ import com.jamal.composeprefs3.ui.prefs.TextPref
 import me.hjr265.ukbd.ui.theme.UKbdTheme
 
 class SettingsActivity : ComponentActivity() {
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MissingPermission")
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,9 +41,17 @@ class SettingsActivity : ComponentActivity() {
         val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
         val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
 
+        var missingPermission = false
         val devices = mutableMapOf<String, String>()
-        for (device in bluetoothAdapter?.bondedDevices!!) {
-            devices[device.address] = device.name
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            for (device in bluetoothAdapter?.bondedDevices!!)
+                devices[device.address] = device.name
+        } else {
+            missingPermission = true
         }
 
         setContent {
@@ -65,6 +77,24 @@ class SettingsActivity : ComponentActivity() {
                                     color = MaterialTheme.colorScheme.secondary
                                 )
                             }) {
+                                if (missingPermission) {
+                                    prefsItem {
+                                        TextPref(
+                                            title = "Permission",
+                                            summary = "Need permission to access Bluetooth features",
+                                            onClick = {
+                                                val launcher = registerForActivityResult(
+                                                    ActivityResultContracts.RequestPermission()
+                                                ) {}
+                                                launcher.launch(
+                                                    Manifest.permission.BLUETOOTH_CONNECT
+                                                )
+                                            },
+                                            enabled = true
+                                        )
+                                    }
+                                    return@prefsGroup
+                                }
                                 prefsItem {
                                     ListPref(
                                         key = DEVICE_ADDRESS.name,
