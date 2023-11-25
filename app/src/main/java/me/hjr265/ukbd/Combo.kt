@@ -1,9 +1,11 @@
 package me.hjr265.ukbd
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothProfile
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
@@ -19,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -26,7 +29,6 @@ import kotlinx.coroutines.flow.Flow
 import me.hjr265.ukbd.hid.Connection
 import me.hjr265.ukbd.hid.ServiceListener
 
-@SuppressLint("MissingPermission")
 @Composable
 fun Combo(
     bluetoothAdapter: BluetoothAdapter,
@@ -41,6 +43,12 @@ fun Combo(
 
     DisposableEffect(lifeCycleOwner, deviceAddressState) {
         val observer = LifecycleEventObserver { source, event ->
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            )
+                return@LifecycleEventObserver
             if (event == Lifecycle.Event.ON_PAUSE) {
                 Log.d("", "Disconnecting")
                 hidConnection?.close()
@@ -48,9 +56,8 @@ fun Combo(
             }
             if (event == Lifecycle.Event.ON_RESUME && hidConnection == null) {
                 Log.d("", "Connecting to ${deviceAddressState}")
-                if (deviceAddressState == "") {
+                if (deviceAddressState == "")
                     return@LifecycleEventObserver
-                }
                 val device = bluetoothAdapter.getRemoteDevice(deviceAddressState)
                 Log.d("", ".. Device Name: ${device.name}")
                 hidConnection = Connection(context, device)

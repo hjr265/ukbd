@@ -28,7 +28,6 @@ import me.hjr265.ukbd.hid.Connection
 import java.util.Date
 
 @OptIn(ExperimentalComposeUiApi::class)
-@SuppressLint("MissingPermission")
 @Composable
 fun Touchpad(
     hidConnection: Connection?,

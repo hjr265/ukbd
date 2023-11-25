@@ -31,7 +31,7 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
         proxy?.connect(hostDevice)
     }
 
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun onConnectionStateChanged(device: BluetoothDevice, state: Int) {
         if (device.address != hostDevice?.address) return
 
@@ -60,7 +60,7 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun close() {
         service?.disconnect(hostDevice)
         service?.unregisterApp()
@@ -68,14 +68,14 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
 
     private var modifierByte: Byte = 0x00
 
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun keyDown(key: String) {
         val code = keyCodes[key]
         Log.d("", "keyDown " + modifierByte.toString(16) + " " + code?.toString(16))
         service?.sendReport(hostDevice, 0x02, byteArrayOf(modifierByte, code!!))
     }
 
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun keyUp(key: String) {
         Log.d("", "keyUp " + modifierByte.toString(16))
         service?.sendReport(hostDevice, 0x02, byteArrayOf(modifierByte, 0x00))
@@ -95,8 +95,8 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
 
     private var mouseButtonByte: Byte = 0x00
 
-    @SuppressLint("MissingPermission")
-    fun sendMouseReport(buttonByte: Byte? = null, deltaX: Byte = 0, deltaY: Byte = 0) {
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private fun sendMouseReport(buttonByte: Byte? = null, deltaX: Byte = 0, deltaY: Byte = 0) {
         service?.sendReport(
             hostDevice,
             0x01,
@@ -109,7 +109,7 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
         )
     }
 
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseMove(deltaX: Int, deltaY: Int) {
         Log.d("", "mouseMove ${deltaX} ${deltaY}")
         sendMouseReport(
@@ -118,6 +118,7 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
         )
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseDown(button: Int) {
         Log.d("", "mouseDown ${button}")
         synchronized(this::class.java) {
@@ -126,6 +127,7 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseUp(button: Int) {
         Log.d("", "mouseUp ${button}")
         synchronized(this::class.java) {
@@ -134,10 +136,12 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseClick(button: Int) {
         synchronized(this::class.java) { mouseButtonByte = mouseButtonByte or (1 shl button).toByte() }
         sendMouseReport()
         Timer().schedule(object : TimerTask() {
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
             override fun run() {
                 synchronized(this::class.java) {
                     mouseButtonByte = mouseButtonByte and (1 shl button).toByte().inv()

@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.hjr265.ukbd.hid.Connection
 
-@SuppressLint("MissingPermission")
 @Composable
 fun Keyboard(
     hidConnection: Connection?,
