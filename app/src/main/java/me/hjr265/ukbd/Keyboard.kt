@@ -269,7 +269,14 @@ fun Plum(
                         0.85f
                     )
                 )
-            else MaterialTheme.colorScheme.secondary
+            else MaterialTheme.colorScheme.secondary,
+            disabledContainerColor = Color(
+                ColorUtils.blendARGB(
+                    MaterialTheme.colorScheme.background.toArgb(),
+                    MaterialTheme.colorScheme.secondary.toArgb(),
+                    0.70f
+                )
+            )
         ),
         contentPadding = PaddingValues(0.dp),
         content = content
@@ -319,8 +326,8 @@ fun PlumModifier(
 ) {
     Plum(
         modifier = modifier,
-        onDown = { hidConnection?.modDown(key) },
-        onUp = { hidConnection?.modUp(key) },
+        onDown = { hidConnection?.modifierDown(key) },
+        onUp = { hidConnection?.modifierUp(key) },
         enabled = hidConnection != null,
         content = {
             if (imageId != 0) {
