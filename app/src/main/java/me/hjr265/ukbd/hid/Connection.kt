@@ -64,30 +64,50 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
     }
 
     private var modifierByte: Byte = 0x00
+    private var keyBytes = mutableListOf<Byte>()
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private fun sendKeyboardReport() {
+        val report = mutableListOf<Byte>(modifierByte)
+        report.add(if (keyBytes.size > 0) keyBytes[0] else 0x00)
+        service?.sendReport(hostDevice, 0x02, report.toByteArray())
+    }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun keyDown(key: String) {
-        val code = keyCodes[key]
-        Log.d("", "keyDown " + modifierByte.toString(16) + " " + code?.toString(16))
-        service?.sendReport(hostDevice, 0x02, byteArrayOf(modifierByte, code!!))
+        val code = keyCodes[key]!!
+        Log.d("", "keyDown $code")
+        synchronized(this::class.java) {
+            if (keyBytes.contains(code))
+                return
+            keyBytes.add(code)
+            sendKeyboardReport()
+        }
+
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun keyUp(key: String) {
-        Log.d("", "keyUp " + modifierByte.toString(16))
-        service?.sendReport(hostDevice, 0x02, byteArrayOf(modifierByte, 0x00))
+        val code = keyCodes[key]!!
+        Log.d("", "keyUp $code")
+        synchronized(this::class.java) {
+            if (!keyBytes.contains(code))
+                return
+            keyBytes.remove(code)
+            sendKeyboardReport()
+        }
     }
 
     fun modifierDown(key: String) {
-        val code = keyCodes[key]
-        synchronized(this::class.java) { modifierByte = modifierByte or code!! }
-        Log.d("", "modDown " + modifierByte.toString(16))
+        val code = keyCodes[key]!!
+        synchronized(this::class.java) { modifierByte = modifierByte or code }
+        Log.d("", "modDown ${modifierByte.toString(16)}")
     }
 
     fun modifierUp(key: String) {
-        val code = keyCodes[key]
-        synchronized(this::class.java) { modifierByte = modifierByte and code!!.inv() }
-        Log.d("", "modUp " + modifierByte.toString(16))
+        val code = keyCodes[key]!!
+        Log.d("", "modUp ${modifierByte.toString(16)}")
+        synchronized(this::class.java) { modifierByte = modifierByte and code.inv() }
     }
 
     private var mouseButtonByte: Byte = 0x00
@@ -135,7 +155,9 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseClick(button: Int) {
-        synchronized(this::class.java) { mouseButtonByte = mouseButtonByte or (1 shl button).toByte() }
+        synchronized(this::class.java) {
+            mouseButtonByte = mouseButtonByte or (1 shl button).toByte()
+        }
         sendMouseReport()
         Timer().schedule(object : TimerTask() {
             @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
