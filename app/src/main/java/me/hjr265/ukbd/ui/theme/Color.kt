@@ -4,3 +4,5 @@ import androidx.compose.ui.graphics.Color
 
 val White = Color(0xffeeeeee)
 val Black = Color(0xff1c1c1c)
+
+val Blue = Color(0xff0099e5)

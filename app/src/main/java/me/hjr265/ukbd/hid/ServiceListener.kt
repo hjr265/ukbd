@@ -55,6 +55,14 @@ class ServiceListener(
                 super.onConnectionStateChanged(device, state)
                 if (device != null) connection.onConnectionStateChanged(device, state)
             }
+
+            @SuppressLint("InlinedApi")
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+            override fun onInterruptData(device: BluetoothDevice?, reportId: Byte, data: ByteArray) {
+                super.onInterruptData(device, reportId, data)
+                if (device != null) connection.onInterruptData(device, reportId, data)
+                Log.d("", "! $reportId ${data.joinToString(" ")}")
+            }
         }
         proxy.registerApp(SDP, null, null, Executors.newCachedThreadPool(), callback)
     }

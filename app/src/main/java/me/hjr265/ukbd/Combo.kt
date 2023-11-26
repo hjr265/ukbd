@@ -40,6 +40,7 @@ fun Combo(
     val deviceAddressState by deviceAddress.collectAsState(initial = "")
 
     var hidConnection by remember { mutableStateOf<Connection?>(null) }
+    var capsLock by remember { mutableStateOf(false) }
 
     DisposableEffect(lifeCycleOwner, deviceAddressState) {
         val observer = LifecycleEventObserver { source, event ->
@@ -60,7 +61,13 @@ fun Combo(
                     return@LifecycleEventObserver
                 val device = bluetoothAdapter.getRemoteDevice(deviceAddressState)
                 Log.d("", ".. Device Name: ${device.name}")
-                hidConnection = Connection(context, device)
+                hidConnection = Connection(
+                    context,
+                    device,
+                    onCapsLock = {state ->
+                        capsLock = state
+                    }
+                )
                 val hidServiceListener = ServiceListener(bluetoothAdapter, hidConnection!!)
                 bluetoothAdapter.getProfileProxy(
                     context,
@@ -107,7 +114,7 @@ fun Combo(
     }
 
     if (mode == "keyboard")
-        Keyboard(hidConnection, togglePlum, settingsPlum)
+        Keyboard(hidConnection, togglePlum, settingsPlum, capsLock)
     else
         Touchpad(hidConnection, togglePlum, settingsPlum)
 }

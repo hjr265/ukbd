@@ -5,6 +5,8 @@ import android.view.MotionEvent
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -45,7 +49,8 @@ import me.hjr265.ukbd.hid.Connection
 fun Keyboard(
     hidConnection: Connection?,
     togglePlum: @Composable () -> Unit,
-    settingsPlum: @Composable () -> Unit
+    settingsPlum: @Composable () -> Unit,
+    capsLock: Boolean
 ) {
     Column {
         Row {
@@ -122,7 +127,9 @@ fun Keyboard(
                 hidConnection,
                 "CAPSLOCK",
                 modifier = Modifier.weight(0.85f),
-                imageId = R.drawable.capslock
+                imageId = R.drawable.capslock,
+                activeDot = true,
+                active = capsLock
             )
             PlumSymbol(hidConnection, "A", imageId = R.drawable.a)
             PlumSymbol(hidConnection, "S", imageId = R.drawable.s)
@@ -222,6 +229,8 @@ fun Plum(
     @DrawableRes imageId: Int = 0,
     imageAlt: String = "",
     label: String = "",
+    activeDot: Boolean = false,
+    active: Boolean = false,
     content: @Composable (RowScope.() -> Unit)? = null
 ) {
     val haptic = LocalHapticFeedback.current
@@ -229,64 +238,79 @@ fun Plum(
     var pressed by remember { mutableStateOf(false) }
     var activePointerId by remember { mutableStateOf(-1) }
 
-    Button(
-        onClick = {},
+    Box(
         modifier = modifier
             .defaultMinSize(55.dp, 50.dp)
             .padding(1.dp)
-            .pointerInteropFilter {
-                var consume = true
-                when (it.actionMasked) {
-                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
-                        if (!enabled) {
-                            consume = false
-                        } else if (activePointerId == -1) {
-                            activePointerId = it.getPointerId(it.actionIndex)
-                            pressed = true
-                            onDown()
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        }
-                    }
-
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                        val pointerId = it.getPointerId(it.actionIndex)
-                        if (pointerId == activePointerId) {
-                            activePointerId = -1
-                            pressed = false
-                            onUp()
-                        }
-                    }
-                }
-                consume
-            },
-        enabled = enabled,
-        shape = RoundedCornerShape(5.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = with(MaterialTheme.colorScheme.secondary) {
-                if (pressed) this.copy(alpha = 0.76f) else this
-            },
-            disabledContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
-        ),
-        contentPadding = PaddingValues(0.dp),
     ) {
-        if (imageId != 0) {
-            Image(
-                painter = painterResource(id = imageId),
-                contentDescription = imageAlt,
-                modifier = Modifier.size(16.dp),
-                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSecondary)
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .matchParentSize()
+                .pointerInteropFilter {
+                    var consume = true
+                    when (it.actionMasked) {
+                        MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
+                            if (!enabled) {
+                                consume = false
+                            } else if (activePointerId == -1) {
+                                activePointerId = it.getPointerId(it.actionIndex)
+                                pressed = true
+                                onDown()
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                        }
+
+                        MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                            val pointerId = it.getPointerId(it.actionIndex)
+                            if (pointerId == activePointerId) {
+                                activePointerId = -1
+                                pressed = false
+                                onUp()
+                            }
+                        }
+                    }
+                    consume
+                },
+            enabled = enabled,
+            shape = RoundedCornerShape(5.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary.let {
+                    if (pressed) it.copy(alpha = 0.76f) else it
+                },
+                disabledContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
+            ),
+            contentPadding = PaddingValues(0.dp),
+        ) {
+            if (imageId != 0) {
+                Image(
+                    painter = painterResource(id = imageId),
+                    contentDescription = imageAlt,
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSecondary)
+                )
+            }
+            if (label != "") {
+                Text(
+                    label,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = if (label.length == 1) 20.sp else TextUnit.Unspecified,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+            if (content != null)
+                content()
+        }
+        if (activeDot) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(-5.dp, 5.dp)
+                    .size(5.dp)
+                    .clip(shape = RoundedCornerShape(5.dp))
+                    .background(color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.19f))
             )
         }
-        if (label != "") {
-            Text(
-                label,
-                fontFamily = FontFamily.Monospace,
-                fontSize = if (label.length == 1) 20.sp else TextUnit.Unspecified,
-                color = MaterialTheme.colorScheme.onSecondary
-            )
-        }
-        if (content != null)
-            content()
     }
 }
 
@@ -299,6 +323,8 @@ fun PlumSymbol(
     imageId: Int = 0,
     imageAlt: String = "",
     label: String = "",
+    activeDot: Boolean = false,
+    active: Boolean = false,
     content: @Composable (RowScope.() -> Unit)? = null
 ) {
     Plum(
@@ -309,6 +335,8 @@ fun PlumSymbol(
         imageId = imageId,
         imageAlt = imageAlt,
         label = label,
+        activeDot = activeDot,
+        active = active,
         content = content
     )
 }

@@ -19,7 +19,11 @@ import kotlin.experimental.inv
 import kotlin.experimental.or
 
 @RequiresApi(Build.VERSION_CODES.P)
-class Connection(private val context: Context, private var hostDevice: BluetoothDevice? = null) {
+class Connection(
+    private val context: Context,
+    private var hostDevice: BluetoothDevice? = null,
+    private val onCapsLock: (Boolean) -> Unit
+) {
     private var service: BluetoothHidDevice? = null
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
@@ -55,6 +59,10 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
             BluetoothProfile.STATE_DISCONNECTING -> {
             }
         }
+    }
+
+    fun onInterruptData(device: BluetoothDevice?, reportId: Byte, data: ByteArray) {
+        if (reportId == 0x02.toByte()) onCapsLock((data[0] and 0x02) > 0)
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
