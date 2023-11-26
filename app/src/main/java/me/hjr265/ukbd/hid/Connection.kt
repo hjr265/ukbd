@@ -1,7 +1,6 @@
 package me.hjr265.ukbd.hid
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothHidDevice
 import android.bluetooth.BluetoothProfile
@@ -11,7 +10,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import java.util.Timer
@@ -20,7 +18,6 @@ import kotlin.experimental.and
 import kotlin.experimental.inv
 import kotlin.experimental.or
 
-@Keep
 @RequiresApi(Build.VERSION_CODES.P)
 class Connection(private val context: Context, private var hostDevice: BluetoothDevice? = null) {
     private var service: BluetoothHidDevice? = null
@@ -111,7 +108,7 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseMove(deltaX: Int, deltaY: Int) {
-        Log.d("", "mouseMove ${deltaX} ${deltaY}")
+        Log.d("", "mouseMove $deltaX $deltaY")
         sendMouseReport(
             deltaX = deltaX.coerceAtLeast(-128).coerceAtMost(127).toByte(),
             deltaY = deltaY.coerceAtLeast(-128).coerceAtMost(127).toByte()
@@ -120,7 +117,7 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseDown(button: Int) {
-        Log.d("", "mouseDown ${button}")
+        Log.d("", "mouseDown $button")
         synchronized(this::class.java) {
             mouseButtonByte = mouseButtonByte or ((1 shl button).toByte())
             sendMouseReport()
@@ -129,7 +126,7 @@ class Connection(private val context: Context, private var hostDevice: Bluetooth
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseUp(button: Int) {
-        Log.d("", "mouseUp ${button}")
+        Log.d("", "mouseUp $button")
         synchronized(this::class.java) {
             mouseButtonByte = mouseButtonByte and ((1 shl button).toByte()).inv()
             sendMouseReport()
