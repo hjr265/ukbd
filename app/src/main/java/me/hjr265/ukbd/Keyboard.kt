@@ -227,7 +227,7 @@ fun Plum(
     val haptic = LocalHapticFeedback.current
 
     var pressed by remember { mutableStateOf(false) }
-    var index by remember { mutableStateOf(-1) }
+    var activePointerId by remember { mutableStateOf(-1) }
 
     Button(
         onClick = {},
@@ -240,8 +240,8 @@ fun Plum(
                     MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
                         if (!enabled) {
                             consume = false
-                        } else if (index == -1) {
-                            index = it.actionIndex
+                        } else if (activePointerId == -1) {
+                            activePointerId = it.getPointerId(it.actionIndex)
                             pressed = true
                             onDown()
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -249,8 +249,9 @@ fun Plum(
                     }
 
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                        if (it.actionIndex == index) {
-                            index = -1
+                        val pointerId = it.getPointerId(it.actionIndex)
+                        if (pointerId == activePointerId) {
+                            activePointerId = -1
                             pressed = false
                             onUp()
                         }
