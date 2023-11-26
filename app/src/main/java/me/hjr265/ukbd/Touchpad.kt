@@ -1,8 +1,10 @@
 package me.hjr265.ukbd
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.MotionEvent
+import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import me.hjr265.ukbd.hid.Connection
 import java.util.Date
 
+@RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Touchpad(
@@ -62,7 +65,7 @@ fun Touchpad(
                 )
             }
 
-            var index by remember { mutableStateOf(-1) }
+            var activePointerId by remember { mutableStateOf(-1) }
             var lastX by remember { mutableStateOf(0f) }
             var lastY by remember { mutableStateOf(0f) }
             var leftDownAt by remember { mutableStateOf(0L) }
@@ -84,32 +87,40 @@ fun Touchpad(
                             var consume = true
                             when (it.actionMasked) {
                                 MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
-                                    if (index == -1) {
-                                        index = it.actionIndex
+                                    if (activePointerId == -1) {
+                                        activePointerId = it.getPointerId(it.actionIndex)
                                         leftDownAt = Date().time
+                                        lastX = it.getX(it.actionIndex)
+                                        lastY = it.getY(it.actionIndex)
                                     }
                                 }
 
                                 MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                                    if (it.actionIndex == index) {
+                                    val pointerId = it.getPointerId(it.actionIndex)
+                                    if (pointerId == activePointerId) {
                                         if ((Date().time - leftDownAt) in (51..149)) {
                                             leftDownAt = 0
                                             hidConnection?.mouseClick(0)
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         }
-                                        index = -1
+                                        activePointerId = -1
                                     }
                                 }
 
                                 MotionEvent.ACTION_MOVE -> {
-                                    val deltaX = (it.getX(index) - lastX).toInt()
-                                    val deltaY = (it.getY(index) - lastY).toInt()
-                                    hidConnection?.mouseMove(deltaX, deltaY)
+                                    for (index in 0 .. it.pointerCount-1) {
+                                        val pointerId = it.getPointerId(index)
+                                        if (pointerId == activePointerId) {
+                                            val x = it.getX(index)
+                                            val y = it.getY(index)
+                                            val deltaX = (x - lastX).toInt()
+                                            val deltaY = (y - lastY).toInt()
+                                            hidConnection?.mouseMove(deltaX, deltaY)
+                                            lastX = x
+                                            lastY = y
+                                        }
+                                    }
                                 }
-                            }
-                            if (index != -1) {
-                                lastX = it.getX(index)
-                                lastY = it.getY(index)
                             }
                             consume
                         }
