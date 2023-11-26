@@ -121,7 +121,12 @@ class Connection(
     private var mouseButtonByte: Byte = 0x00
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    private fun sendMouseReport(buttonByte: Byte? = null, deltaX: Byte = 0, deltaY: Byte = 0) {
+    private fun sendMouseReport(
+        buttonByte: Byte? = null,
+        deltaX: Byte = 0,
+        deltaY: Byte = 0,
+        deltaWheel: Byte = 0
+    ) {
         service?.sendReport(
             hostDevice,
             0x01,
@@ -129,7 +134,7 @@ class Connection(
                 buttonByte ?: mouseButtonByte,
                 deltaX,
                 deltaY,
-                0
+                deltaWheel,
             )
         )
     }
@@ -159,6 +164,12 @@ class Connection(
             mouseButtonByte = mouseButtonByte and ((1 shl button).toByte()).inv()
             sendMouseReport()
         }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun mouseWheel(delta: Int) {
+        Log.d("", "mouseWheel $delta")
+        sendMouseReport(deltaWheel = delta.coerceAtLeast(-128).coerceAtMost(127).toByte())
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
