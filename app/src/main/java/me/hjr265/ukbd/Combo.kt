@@ -1,7 +1,6 @@
 package me.hjr265.ukbd
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothProfile
 import android.content.Intent

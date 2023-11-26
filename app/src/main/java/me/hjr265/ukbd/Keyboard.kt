@@ -308,7 +308,11 @@ fun Plum(
                     .offset(-5.dp, 5.dp)
                     .size(5.dp)
                     .clip(shape = RoundedCornerShape(5.dp))
-                    .background(color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.19f))
+                    .background(
+                        color = with(MaterialTheme.colorScheme) {
+                            if (active) primary else onSecondary.copy(alpha = 0.19f)
+                        }
+                    )
             )
         }
     }
