@@ -61,7 +61,7 @@ class ServiceListener(
             override fun onInterruptData(device: BluetoothDevice?, reportId: Byte, data: ByteArray) {
                 super.onInterruptData(device, reportId, data)
                 if (device != null) connection.onInterruptData(device, reportId, data)
-                Log.d("", "! $reportId ${data.joinToString(" ")}")
+                Log.d("", "interrupt ${data.joinToString(" ")}")
             }
         }
         proxy.registerApp(SDP, null, null, Executors.newCachedThreadPool(), callback)
