@@ -42,7 +42,7 @@ fun Combo(
     var capsLock by remember { mutableStateOf(false) }
 
     DisposableEffect(lifeCycleOwner, deviceAddressState) {
-        val observer = LifecycleEventObserver { source, event ->
+        val observer = LifecycleEventObserver { _, event ->
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.BLUETOOTH_CONNECT
