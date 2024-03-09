@@ -17,6 +17,7 @@ import java.util.TimerTask
 import kotlin.experimental.and
 import kotlin.experimental.inv
 import kotlin.experimental.or
+import kotlin.math.min
 
 @RequiresApi(Build.VERSION_CODES.P)
 class Connection(
@@ -76,9 +77,12 @@ class Connection(
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun sendKeyboardReport() {
-        val report = mutableListOf<Byte>(modifierByte)
-        report.add(if (keyBytes.size > 0) keyBytes[0] else 0x00)
-        service?.sendReport(hostDevice, 0x02, report.toByteArray())
+        val report = ByteArray(2 + min(keyBytes.size, 6))
+        report[0] = modifierByte
+        keyBytes.forEachIndexed { i, v ->
+            report[i+2] = v
+        }
+        service?.sendReport(hostDevice, 0x02, report)
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
