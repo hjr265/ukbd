@@ -183,7 +183,7 @@ fun Axon(
                         val pointerId = it.getPointerId(it.actionIndex)
                         if (pointerId == activePointerId) {
                             onStretch(0f, 0f)
-                            if ((Date().time - leftDownAt) in (51..149)) {
+                            if ((Date().time - leftDownAt) in (21..149)) {
                                 leftDownAt = 0
                                 onTap()
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
