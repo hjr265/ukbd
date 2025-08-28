@@ -179,6 +179,7 @@ class Connection(
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun mouseClick(button: Int) {
+        Log.d("", "mouseClick $button")
         synchronized(this::class.java) {
             mouseButtonByte = mouseButtonByte or (1 shl button).toByte()
         }
