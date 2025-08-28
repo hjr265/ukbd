@@ -55,9 +55,9 @@ fun Combo(
                 hidConnection = null
             }
             if (event == Lifecycle.Event.ON_RESUME && hidConnection == null) {
-                Log.d("", "Connecting to ${deviceAddressState}")
                 if (deviceAddressState == "")
                     return@LifecycleEventObserver
+                Log.d("", "Connecting to ${deviceAddressState}")
                 val device = bluetoothAdapter.getRemoteDevice(deviceAddressState)
                 Log.d("", ".. Device Name: ${device.name}")
                 hidConnection = Connection(
