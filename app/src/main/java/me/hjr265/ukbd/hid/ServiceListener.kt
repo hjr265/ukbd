@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothHidDevice
+import android.bluetooth.BluetoothHidDeviceAppQosSettings
 import android.bluetooth.BluetoothHidDeviceAppSdpSettings
 import android.bluetooth.BluetoothProfile
 import android.os.Handler
@@ -62,7 +63,10 @@ class ServiceListener(
                 Log.d("", "interrupt ${data.joinToString(" ")}")
             }
         }
-        proxy.registerApp(SDP, null, null, Executors.newCachedThreadPool(), callback)
+        val qos = BluetoothHidDeviceAppQosSettings(
+            BluetoothHidDeviceAppQosSettings.SERVICE_BEST_EFFORT, 800, 0, 0, 0, 0
+        )
+        proxy.registerApp(SDP, null, qos, Executors.newCachedThreadPool(), callback)
     }
 
     override fun onServiceDisconnected(profile: Int) {}
