@@ -77,12 +77,13 @@ class Connection(
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun sendKeyboardReport() {
-        val report = ByteArray(2 + min(keyBytes.size, 6))
+        val report = ByteArray(2 + 6)
         report[0] = modifierByte
-        keyBytes.forEachIndexed { i, v ->
-            report[i+2] = v
+        for (i in 0 until 6) {
+            if (i < keyBytes.size)
+                report[i + 2] = keyBytes[i]
         }
-        service?.sendReport(hostDevice, 0x02, report)
+        service?.sendReport(hostDevice, 0x01, report)
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
@@ -133,7 +134,7 @@ class Connection(
     ) {
         service?.sendReport(
             hostDevice,
-            0x01,
+            0x02,
             byteArrayOf(
                 buttonByte ?: mouseButtonByte,
                 deltaX,
