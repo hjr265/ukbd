@@ -32,10 +32,8 @@ class ServiceListener(
     @SuppressLint("InlinedApi")
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onServiceConnected(profile: Int, proxy: BluetoothProfile?) {
-        Log.d("", "Service connected")
-        Log.d("", ".. Profile: ${profile}")
-        Log.d("", ".. Profile: ${proxy}")
         if (profile != BluetoothProfile.HID_DEVICE || proxy !is BluetoothHidDevice) return
+        Log.d("", "Service connected")
         val callback = object : BluetoothHidDevice.Callback() {
             private val handler = Handler(Looper.getMainLooper())
 
