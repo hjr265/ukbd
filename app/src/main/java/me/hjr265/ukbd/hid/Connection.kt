@@ -63,7 +63,7 @@ class Connection(
     }
 
     fun onInterruptData(device: BluetoothDevice?, reportId: Byte, data: ByteArray) {
-        if (reportId == 0x02.toByte()) onCapsLock((data[0] and 0x02) > 0)
+        if (reportId == 0x01.toByte()) onCapsLock((data[0] and 0x02) > 0)
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
