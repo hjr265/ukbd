@@ -153,6 +153,18 @@ class KeyboardService : Service() {
         connectToDeviceIfReady()
     }
 
+    fun connect() {
+        if (connection != null) return
+        connectToDeviceIfReady()
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun disconnect() {
+        if (connection == null) return
+        connection?.close()
+        connection = null
+    }
+
     private fun connectToDeviceIfReady() {
         val address = targetDeviceAddress ?: return
         val adapter = bluetoothAdapter ?: return

@@ -69,7 +69,6 @@ class Connection(
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun close() {
         service?.disconnect(hostDevice)
-        service?.unregisterApp()
     }
 
     private var modifierByte: Byte = 0x00

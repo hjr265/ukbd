@@ -107,6 +107,16 @@ class MainActivity : ComponentActivity(), KeyboardService.Listener {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        keyboardService?.disconnect()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        keyboardService?.connect()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         if (keyboardServiceBound) {
