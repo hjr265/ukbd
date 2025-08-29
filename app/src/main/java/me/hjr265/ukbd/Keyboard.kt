@@ -69,6 +69,15 @@ fun Keyboard(
             Row {
                 PlumSymbol(hidConnection, "SYSRQ", label = "PRTSC")
             }
+            Spacer(modifier = Modifier.width(5.dp))
+            Row {
+                PlumMedia(hidConnection, "VOLUMEUP", imageId = R.drawable.volumeup)
+                PlumMedia(hidConnection, "VOLUMEDOWN", imageId = R.drawable.volumedown)
+                PlumMedia(hidConnection, "VOLUMEMUTE", imageId = R.drawable.volumemute)
+                PlumMedia(hidConnection, "PLAYPAUSE", imageId = R.drawable.playpause)
+                PlumMedia(hidConnection, "TRACKNEXT", imageId = R.drawable.tracknext)
+                PlumMedia(hidConnection, "TRACKPREVIOUS", imageId = R.drawable.trackprevious)
+            }
             Spacer(modifier = Modifier.weight(1f))
             Row {
                 togglePlum()
@@ -358,6 +367,28 @@ fun PlumModifier(
     Plum(
         onDown = { hidConnection?.modifierDown(key) },
         onUp = { hidConnection?.modifierUp(key) },
+        enabled = hidConnection != null,
+        modifier = modifier,
+        imageId = imageId,
+        imageAlt = imageAlt,
+        label = label,
+        content = content
+    )
+}
+
+@Composable
+fun PlumMedia(
+    hidConnection: Connection?,
+    key: String,
+    modifier: Modifier = Modifier,
+    imageId: Int = 0,
+    imageAlt: String = "",
+    label: String = "",
+    content: @Composable (RowScope.() -> Unit)? = null
+) {
+    Plum(
+        onDown = { hidConnection?.mediaDown(key) },
+        onUp = { hidConnection?.mediaUp(key) },
         enabled = hidConnection != null,
         modifier = modifier,
         imageId = imageId,

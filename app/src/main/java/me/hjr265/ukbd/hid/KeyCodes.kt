@@ -74,5 +74,12 @@ val keyCodes = mapOf<String, Byte>(
     "RIGHT" to 0x4f,
     "LEFT" to 0x50,
     "DOWN" to 0x51,
-    "UP" to 0x52
+    "UP" to 0x52,
+
+    "VOLUMEUP" to 0x01,
+    "VOLUMEDOWN" to 0x02,
+    "VOLUMEMUTE" to 0x04,
+    "PLAYPAUSE" to 0x08,
+    "TRACKNEXT" to 0x10,
+    "TRACKPREVIOUS" to 0x20,
 )

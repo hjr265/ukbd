@@ -96,7 +96,6 @@ class Connection(
             keyBytes.add(code)
             sendKeyboardReport()
         }
-
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
@@ -113,13 +112,13 @@ class Connection(
 
     fun modifierDown(key: String) {
         val code = keyCodes[key]!!
+        Log.d("", "modDown $code")
         synchronized(this::class.java) { modifierByte = modifierByte or code }
-        Log.d("", "modDown ${modifierByte.toString(16)}")
     }
 
     fun modifierUp(key: String) {
         val code = keyCodes[key]!!
-        Log.d("", "modUp ${modifierByte.toString(16)}")
+        Log.d("", "modUp $code")
         synchronized(this::class.java) { modifierByte = modifierByte and code.inv() }
     }
 
@@ -194,5 +193,34 @@ class Connection(
                 cancel()
             }
         }, 20)
+    }
+
+    private var mediaByte: Byte = 0x00
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private fun sendMediaReport() {
+        val report = ByteArray(1)
+        report[0] = mediaByte
+        service?.sendReport(hostDevice, 0x03, report)
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun mediaDown(key: String) {
+        val code = keyCodes[key]!!
+        Log.d("", "mediaDown $code")
+        synchronized(this::class.java) {
+            mediaByte = mediaByte or code
+            sendMediaReport()
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun mediaUp(key: String) {
+        val code = keyCodes[key]!!
+        Log.d("", "mediaUp $code")
+        synchronized(this::class.java) {
+            mediaByte = mediaByte and code.inv()
+            sendMediaReport()
+        }
     }
 }
