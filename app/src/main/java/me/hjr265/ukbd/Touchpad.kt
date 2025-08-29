@@ -99,6 +99,8 @@ fun Touchpad(
                 Axon(
                     modifier = Modifier.fillMaxSize(),
                     onTap = { hidConnection?.mouseClick(0) },
+                    onTapDragStart = { hidConnection?.mouseDown(0) },
+                    onTapDragStop = { hidConnection?.mouseUp(0) },
                     onSlide = { deltaX: Int, deltaY: Int ->
                         hidConnection?.mouseMove(
                             deltaX,
@@ -137,6 +139,8 @@ fun Touchpad(
 fun Axon(
     modifier: Modifier = Modifier,
     onTap: () -> Unit = {},
+    onTapDragStart: () -> Unit = {},
+    onTapDragStop: () -> Unit = {},
     onSlide: (deltaX: Int, deltaY: Int) -> Unit = { _: Int, _: Int -> },
     onStretch: (deltaX: Float, deltaY: Float) -> Unit = { _: Float, _: Float -> },
     enabled: Boolean = true,
@@ -150,6 +154,8 @@ fun Axon(
     var lastX by remember { mutableStateOf(0f) }
     var lastY by remember { mutableStateOf(0f) }
     var leftDownAt by remember { mutableStateOf(0L) }
+    var tapAt by remember { mutableStateOf(0L) }
+    var tapDragging by remember { mutableStateOf(false) }
 
     var size by remember { mutableStateOf(Size.Zero) }
 
@@ -176,6 +182,12 @@ fun Axon(
                             firstY = it.getY(it.actionIndex)
                             lastX = it.getX(it.actionIndex)
                             lastY = it.getY(it.actionIndex)
+                            Log.d("", "XXXXXXXX ${(Date().time - tapAt)}")
+                            if ((Date().time - tapAt) in (21..149)) {
+                                Log.d("", "XXXXXXXX")
+                                tapDragging = true
+                                onTapDragStart()
+                            }
                         }
                     }
 
@@ -185,8 +197,13 @@ fun Axon(
                             onStretch(0f, 0f)
                             if ((Date().time - leftDownAt) in (21..149)) {
                                 leftDownAt = 0
+                                tapAt = Date().time
                                 onTap()
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                            if (tapDragging) {
+                                tapDragging = false
+                                onTapDragStop()
                             }
                             activePointerId = -1
                         }
