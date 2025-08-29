@@ -19,7 +19,6 @@ import kotlin.experimental.inv
 import kotlin.experimental.or
 import kotlin.math.min
 
-@RequiresApi(Build.VERSION_CODES.P)
 class Connection(
     private val context: Context,
     private var hostDevice: BluetoothDevice? = null,
@@ -63,6 +62,7 @@ class Connection(
     }
 
     fun onInterruptData(device: BluetoothDevice?, reportId: Byte, data: ByteArray) {
+        Log.d("", "interrupt $reportId $data")
         if (reportId == 0x01.toByte()) onCapsLock((data[0] and 0x02) > 0)
     }
 

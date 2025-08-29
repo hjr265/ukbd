@@ -26,60 +26,13 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.flow.Flow
 import me.hjr265.ukbd.hid.Connection
-import me.hjr265.ukbd.hid.ServiceListener
 
 @Composable
 fun Combo(
-    bluetoothAdapter: BluetoothAdapter,
-    deviceAddress: Flow<String>,
-    lifeCycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+    hidConnection: Connection?,
+    capsLock: Boolean,
 ) {
     val context = LocalContext.current
-
-    val deviceAddressState by deviceAddress.collectAsState(initial = "")
-
-    var hidConnection by remember { mutableStateOf<Connection?>(null) }
-    var capsLock by remember { mutableStateOf(false) }
-
-    DisposableEffect(lifeCycleOwner, deviceAddressState) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
-            )
-                return@LifecycleEventObserver
-            if (event == Lifecycle.Event.ON_PAUSE) {
-                Log.d("", "Disconnecting")
-                hidConnection?.close()
-                hidConnection = null
-            }
-            if (event == Lifecycle.Event.ON_RESUME && hidConnection == null) {
-                if (deviceAddressState == "")
-                    return@LifecycleEventObserver
-                Log.d("", "Connecting to ${deviceAddressState}")
-                val device = bluetoothAdapter.getRemoteDevice(deviceAddressState)
-                Log.d("", ".. Device Name: ${device.name}")
-                hidConnection = Connection(
-                    context,
-                    device,
-                    onCapsLock = {state ->
-                        capsLock = state
-                    }
-                )
-                val hidServiceListener = ServiceListener(bluetoothAdapter, hidConnection!!)
-                bluetoothAdapter.getProfileProxy(
-                    context,
-                    hidServiceListener,
-                    BluetoothProfile.HID_DEVICE
-                )
-            }
-        }
-        lifeCycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifeCycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     var mode by remember { mutableStateOf("keyboard") }
 
