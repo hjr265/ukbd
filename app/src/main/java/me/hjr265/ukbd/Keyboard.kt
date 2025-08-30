@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.sp
 import me.hjr265.ukbd.hid.Connection
 
 
-enum class Layer { DEFAULT, FUNCTION }
+enum class Layer { DEFAULT, SHIFT, FUNCTION }
 
 @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
 @Composable
@@ -63,7 +63,7 @@ fun Keyboard(
             }
             Spacer(modifier = Modifier.width(5.dp))
             when (layer) {
-                Layer.DEFAULT -> Row {
+                Layer.DEFAULT, Layer.SHIFT -> Row {
                     Row {
                         PlumSymbol(hidConnection, "F1", label = "F1")
                         PlumSymbol(hidConnection, "F2", label = "F2")
@@ -88,8 +88,6 @@ fun Keyboard(
 
                 Layer.FUNCTION -> Row {
                     Row {
-                        // PlumMedia(hidConnection, "VOLUMEUP", imageId = R.drawable.volumeup)
-                        // PlumMedia(hidConnection, "VOLUMEDOWN", imageId = R.drawable.volumedown)
                         PlumMedia(hidConnection, "VOLUMEMUTE", imageId = R.drawable.volumemute)
                         PlumMedia(hidConnection, "PLAYPAUSE", imageId = R.drawable.playpause)
                         PlumMedia(hidConnection, "TRACKNEXT", imageId = R.drawable.tracknext)
@@ -100,6 +98,10 @@ fun Keyboard(
                         )
                     }
                     Spacer(modifier = Modifier.width(5.dp))
+                    Row {
+                        PlumMedia(hidConnection, "VOLUMEUP", imageId = R.drawable.volumeup)
+                        PlumMedia(hidConnection, "VOLUMEDOWN", imageId = R.drawable.volumedown)
+                    }
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -109,21 +111,41 @@ fun Keyboard(
             }
         }
         Row {
-            PlumSymbol(hidConnection, "GRAVE", label = "`")
-            PlumSymbol(hidConnection, "1", imageId = R.drawable.one)
-            PlumSymbol(hidConnection, "2", imageId = R.drawable.two)
-            PlumSymbol(hidConnection, "3", imageId = R.drawable.three)
-            PlumSymbol(hidConnection, "4", imageId = R.drawable.four)
-            PlumSymbol(hidConnection, "5", imageId = R.drawable.five)
-            PlumSymbol(hidConnection, "6", imageId = R.drawable.six)
-            PlumSymbol(hidConnection, "7", imageId = R.drawable.seven)
-            PlumSymbol(hidConnection, "8", imageId = R.drawable.eight)
-            PlumSymbol(hidConnection, "9", imageId = R.drawable.nine)
-            PlumSymbol(hidConnection, "0", imageId = R.drawable.zero)
-            PlumSymbol(hidConnection, "MINUS", label = "-")
-            PlumSymbol(hidConnection, "EQUAL", label = "=")
             when (layer) {
-                Layer.DEFAULT ->
+                Layer.DEFAULT, Layer.FUNCTION -> Row {
+                    PlumSymbol(hidConnection, "GRAVE", label = "`")
+                    PlumSymbol(hidConnection, "1", imageId = R.drawable.one)
+                    PlumSymbol(hidConnection, "2", imageId = R.drawable.two)
+                    PlumSymbol(hidConnection, "3", imageId = R.drawable.three)
+                    PlumSymbol(hidConnection, "4", imageId = R.drawable.four)
+                    PlumSymbol(hidConnection, "5", imageId = R.drawable.five)
+                    PlumSymbol(hidConnection, "6", imageId = R.drawable.six)
+                    PlumSymbol(hidConnection, "7", imageId = R.drawable.seven)
+                    PlumSymbol(hidConnection, "8", imageId = R.drawable.eight)
+                    PlumSymbol(hidConnection, "9", imageId = R.drawable.nine)
+                    PlumSymbol(hidConnection, "0", imageId = R.drawable.zero)
+                    PlumSymbol(hidConnection, "MINUS", imageId = R.drawable.minus)
+                    PlumSymbol(hidConnection, "EQUAL", imageId = R.drawable.equals)
+                }
+
+                Layer.SHIFT -> Row {
+                    PlumSymbol(hidConnection, "GRAVE", imageId = R.drawable.tilde)
+                    PlumSymbol(hidConnection, "1", label = "!")
+                    PlumSymbol(hidConnection, "2", imageId = R.drawable.at)
+                    PlumSymbol(hidConnection, "3", imageId = R.drawable.hash)
+                    PlumSymbol(hidConnection, "4", imageId = R.drawable.dollar)
+                    PlumSymbol(hidConnection, "5", imageId = R.drawable.percentage)
+                    PlumSymbol(hidConnection, "6", imageId = R.drawable.up)
+                    PlumSymbol(hidConnection, "7", label = "&")
+                    PlumSymbol(hidConnection, "8", label = "*")
+                    PlumSymbol(hidConnection, "9", imageId = R.drawable.leftbracket)
+                    PlumSymbol(hidConnection, "0", imageId = R.drawable.rightbracket)
+                    PlumSymbol(hidConnection, "MINUS", label = "_")
+                    PlumSymbol(hidConnection, "EQUAL", imageId = R.drawable.plus)
+                }
+            }
+            when (layer) {
+                Layer.DEFAULT, Layer.SHIFT ->
                     PlumSymbol(
                         hidConnection,
                         "BACKSPACE",
@@ -156,8 +178,17 @@ fun Keyboard(
             PlumSymbol(hidConnection, "I", imageId = R.drawable.i)
             PlumSymbol(hidConnection, "O", imageId = R.drawable.o)
             PlumSymbol(hidConnection, "P", imageId = R.drawable.p)
-            PlumSymbol(hidConnection, "LEFTBRACE", imageId = R.drawable.leftbrace)
-            PlumSymbol(hidConnection, "RIGHTBRACE", imageId = R.drawable.rightbrace)
+            when (layer) {
+                Layer.DEFAULT, Layer.FUNCTION -> Row {
+                    PlumSymbol(hidConnection, "LEFTBRACE", imageId = R.drawable.leftbrace)
+                    PlumSymbol(hidConnection, "RIGHTBRACE", imageId = R.drawable.rightbrace)
+                }
+
+                Layer.SHIFT -> Row {
+                    PlumSymbol(hidConnection, "LEFTBRACE", imageId = R.drawable.leftcurlybrace)
+                    PlumSymbol(hidConnection, "RIGHTBRACE", imageId = R.drawable.rightcurlybrace)
+                }
+            }
             PlumSymbol(
                 hidConnection,
                 "BACKSLASH",
@@ -183,8 +214,17 @@ fun Keyboard(
             PlumSymbol(hidConnection, "J", imageId = R.drawable.j)
             PlumSymbol(hidConnection, "K", imageId = R.drawable.k)
             PlumSymbol(hidConnection, "L", imageId = R.drawable.l)
-            PlumSymbol(hidConnection, "SEMICOLON", label = ";")
-            PlumSymbol(hidConnection, "APOSTROPHE", label = "'")
+            when (layer) {
+                Layer.DEFAULT, Layer.FUNCTION -> Row {
+                    PlumSymbol(hidConnection, "SEMICOLON", label = ";")
+                    PlumSymbol(hidConnection, "APOSTROPHE", label = "'")
+                }
+
+                Layer.SHIFT -> Row {
+                    PlumSymbol(hidConnection, "SEMICOLON", label = ":")
+                    PlumSymbol(hidConnection, "APOSTROPHE", label = "\"")
+                }
+            }
             PlumSymbol(
                 hidConnection,
                 "ENTER",
@@ -197,6 +237,8 @@ fun Keyboard(
                 hidConnection,
                 "MOD_LSHIFT",
                 modifier = Modifier.weight(1f),
+                onDown = { layer = Layer.SHIFT },
+                onUp = { layer = Layer.DEFAULT },
                 imageId = R.drawable.shift
             )
             PlumSymbol(hidConnection, "Z", imageId = R.drawable.z)
@@ -206,13 +248,25 @@ fun Keyboard(
             PlumSymbol(hidConnection, "B", imageId = R.drawable.b)
             PlumSymbol(hidConnection, "N", imageId = R.drawable.n)
             PlumSymbol(hidConnection, "M", imageId = R.drawable.m)
-            PlumSymbol(hidConnection, "COMMA", label = ",")
-            PlumSymbol(hidConnection, "DOT", label = ".")
-            PlumSymbol(hidConnection, "SLASH", label = "/")
+            when (layer) {
+                Layer.DEFAULT, Layer.FUNCTION -> Row {
+                    PlumSymbol(hidConnection, "COMMA", label = ",")
+                    PlumSymbol(hidConnection, "DOT", label = ".")
+                    PlumSymbol(hidConnection, "SLASH", label = "/")
+                }
+
+                Layer.SHIFT -> Row {
+                    PlumSymbol(hidConnection, "COMMA", imageId = R.drawable.lessthan)
+                    PlumSymbol(hidConnection, "DOT", imageId = R.drawable.greaterthan)
+                    PlumSymbol(hidConnection, "SLASH", imageId = R.drawable.question)
+                }
+            }
             PlumModifier(
                 hidConnection,
                 "MOD_RSHIFT",
                 modifier = Modifier.weight(1f),
+                onDown = { layer = Layer.SHIFT },
+                onUp = { layer = Layer.DEFAULT },
                 imageId = R.drawable.shift
             )
         }
@@ -236,7 +290,7 @@ fun Keyboard(
             PlumSymbol(hidConnection, "SYSRQ", label = "PRTSC")
             PlumModifier(hidConnection, "MOD_RCTRL", label = "CTRL")
             when (layer) {
-                Layer.DEFAULT -> Row(
+                Layer.DEFAULT, Layer.SHIFT -> Row(
                     verticalAlignment = Alignment.Bottom
                 ) {
                     PlumSymbol(
@@ -433,14 +487,22 @@ fun PlumModifier(
     hidConnection: Connection?,
     key: String,
     modifier: Modifier = Modifier,
+    onDown: () -> Unit = {},
+    onUp: () -> Unit = {},
     imageId: Int = 0,
     imageAlt: String = "",
     label: String = "",
     content: @Composable (RowScope.() -> Unit)? = null
 ) {
     Plum(
-        onDown = { hidConnection?.modifierDown(key) },
-        onUp = { hidConnection?.modifierUp(key) },
+        onDown = {
+            hidConnection?.modifierDown(key)
+            onDown()
+        },
+        onUp = {
+            hidConnection?.modifierUp(key)
+            onUp()
+        },
         enabled = hidConnection != null,
         modifier = modifier,
         imageId = imageId,
