@@ -76,6 +76,21 @@ val keyCodes = mapOf<String, Byte>(
     "DOWN" to 0x51,
     "UP" to 0x52,
 
+
+    "F1" to 0x3A,
+    "F2" to 0x3B,
+    "F3" to 0x3C,
+    "F4" to 0x3D,
+    "F5" to 0x3E,
+    "F6" to 0x3F,
+    "F7" to 0x40,
+    "F8" to 0x41,
+    "F9" to 0x42,
+    "F10" to 0x43,
+    "F11" to 0x44,
+    "F12" to 0x45,
+
+
     "VOLUMEUP" to 0x01,
     "VOLUMEDOWN" to 0x02,
     "VOLUMEMUTE" to 0x04,

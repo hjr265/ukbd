@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.sp
 import me.hjr265.ukbd.hid.Connection
 
 
+enum class Layer { DEFAULT, FUNCTION }
+
 @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
 @Composable
 fun Keyboard(
@@ -52,31 +54,53 @@ fun Keyboard(
     settingsPlum: @Composable () -> Unit,
     capsLock: Boolean
 ) {
+    var layer by remember { mutableStateOf(Layer.DEFAULT) }
+
     Column {
         Row {
             Row {
                 PlumSymbol(hidConnection, "ESC", label = "ESC")
             }
             Spacer(modifier = Modifier.width(5.dp))
-            Row {
-                PlumSymbol(hidConnection, "HOME", label = "HOME")
-                PlumSymbol(hidConnection, "END", label = "END")
-                PlumSymbol(hidConnection, "PAGEUP", label = "PGUP")
-                PlumSymbol(hidConnection, "PAGEDOWN", label = "PGDN")
-                PlumSymbol(hidConnection, "DELETE", label = "DEL")
-            }
-            Spacer(modifier = Modifier.width(5.dp))
-            Row {
-                PlumSymbol(hidConnection, "SYSRQ", label = "PRTSC")
-            }
-            Spacer(modifier = Modifier.width(5.dp))
-            Row {
-                PlumMedia(hidConnection, "VOLUMEUP", imageId = R.drawable.volumeup)
-                PlumMedia(hidConnection, "VOLUMEDOWN", imageId = R.drawable.volumedown)
-                PlumMedia(hidConnection, "VOLUMEMUTE", imageId = R.drawable.volumemute)
-                PlumMedia(hidConnection, "PLAYPAUSE", imageId = R.drawable.playpause)
-                PlumMedia(hidConnection, "TRACKNEXT", imageId = R.drawable.tracknext)
-                PlumMedia(hidConnection, "TRACKPREVIOUS", imageId = R.drawable.trackprevious)
+            when (layer) {
+                Layer.DEFAULT -> Row {
+                    Row {
+                        PlumSymbol(hidConnection, "F1", label = "F1")
+                        PlumSymbol(hidConnection, "F2", label = "F2")
+                        PlumSymbol(hidConnection, "F3", label = "F3")
+                        PlumSymbol(hidConnection, "F4", label = "F4")
+                    }
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Row {
+                        PlumSymbol(hidConnection, "F5", label = "F5")
+                        PlumSymbol(hidConnection, "F6", label = "F6")
+                        PlumSymbol(hidConnection, "F7", label = "F7")
+                        PlumSymbol(hidConnection, "F8", label = "F8")
+                    }
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Row {
+                        PlumSymbol(hidConnection, "F9", label = "F9")
+                        PlumSymbol(hidConnection, "F10", label = "F10")
+                        PlumSymbol(hidConnection, "F11", label = "F11")
+                        PlumSymbol(hidConnection, "F12", label = "F12")
+                    }
+                }
+
+                Layer.FUNCTION -> Row {
+                    Row {
+                        // PlumMedia(hidConnection, "VOLUMEUP", imageId = R.drawable.volumeup)
+                        // PlumMedia(hidConnection, "VOLUMEDOWN", imageId = R.drawable.volumedown)
+                        PlumMedia(hidConnection, "VOLUMEMUTE", imageId = R.drawable.volumemute)
+                        PlumMedia(hidConnection, "PLAYPAUSE", imageId = R.drawable.playpause)
+                        PlumMedia(hidConnection, "TRACKNEXT", imageId = R.drawable.tracknext)
+                        PlumMedia(
+                            hidConnection,
+                            "TRACKPREVIOUS",
+                            imageId = R.drawable.trackprevious
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(5.dp))
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             Row {
@@ -98,12 +122,22 @@ fun Keyboard(
             PlumSymbol(hidConnection, "0", imageId = R.drawable.zero)
             PlumSymbol(hidConnection, "MINUS", label = "-")
             PlumSymbol(hidConnection, "EQUAL", label = "=")
-            PlumSymbol(
-                hidConnection,
-                "BACKSPACE",
-                modifier = Modifier.weight(1f),
-                imageId = R.drawable.backspace
-            )
+            when (layer) {
+                Layer.DEFAULT ->
+                    PlumSymbol(
+                        hidConnection,
+                        "BACKSPACE",
+                        modifier = Modifier.weight(1f),
+                        imageId = R.drawable.backspace
+                    )
+
+                Layer.FUNCTION -> PlumSymbol(
+                    hidConnection,
+                    "DELETE",
+                    modifier = Modifier.weight(1f),
+                    label = "DELETE"
+                )
+            }
         }
         Row {
             PlumSymbol(
@@ -184,6 +218,12 @@ fun Keyboard(
         }
         Row {
             PlumModifier(hidConnection, "MOD_LCTRL", label = "CTRL")
+            Plum(
+                onDown = { layer = Layer.FUNCTION },
+                onUp = { layer = Layer.DEFAULT },
+                label = "FN",
+                enabled = hidConnection != null
+            )
             PlumModifier(hidConnection, "MOD_LMETA", imageId = R.drawable.meta)
             PlumModifier(hidConnection, "MOD_LALT", label = "ALT")
             PlumSymbol(
@@ -193,36 +233,70 @@ fun Keyboard(
                 imageId = R.drawable.space
             )
             PlumModifier(hidConnection, "MOD_RALT", label = "ALT")
+            PlumSymbol(hidConnection, "SYSRQ", label = "PRTSC")
             PlumModifier(hidConnection, "MOD_RCTRL", label = "CTRL")
-            Row(
-                verticalAlignment = Alignment.Bottom
-            ) {
-                PlumSymbol(
-                    hidConnection,
-                    "LEFT",
-                    modifier = Modifier.height(height = 40.dp),
-                    imageId = R.drawable.left
-                )
-                Column {
+            when (layer) {
+                Layer.DEFAULT -> Row(
+                    verticalAlignment = Alignment.Bottom
+                ) {
                     PlumSymbol(
                         hidConnection,
-                        "UP",
+                        "LEFT",
                         modifier = Modifier.height(height = 40.dp),
-                        imageId = R.drawable.up
+                        imageId = R.drawable.left
                     )
+                    Column {
+                        PlumSymbol(
+                            hidConnection,
+                            "UP",
+                            modifier = Modifier.height(height = 40.dp),
+                            imageId = R.drawable.up
+                        )
+                        PlumSymbol(
+                            hidConnection,
+                            "DOWN",
+                            modifier = Modifier.height(height = 40.dp),
+                            imageId = R.drawable.down
+                        )
+                    }
                     PlumSymbol(
                         hidConnection,
-                        "DOWN",
+                        "RIGHT",
                         modifier = Modifier.height(height = 40.dp),
-                        imageId = R.drawable.down
+                        imageId = R.drawable.right
                     )
                 }
-                PlumSymbol(
-                    hidConnection,
-                    "RIGHT",
-                    modifier = Modifier.height(height = 40.dp),
-                    imageId = R.drawable.right
-                )
+
+                Layer.FUNCTION -> Row(
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    PlumSymbol(
+                        hidConnection,
+                        "HOME",
+                        label = "HOME",
+                        modifier = Modifier.height(height = 40.dp)
+                    )
+                    Column {
+                        PlumSymbol(
+                            hidConnection,
+                            "END",
+                            label = "END",
+                            modifier = Modifier.height(height = 40.dp)
+                        )
+                        PlumSymbol(
+                            hidConnection,
+                            "PAGEUP",
+                            label = "PGUP",
+                            modifier = Modifier.height(height = 40.dp)
+                        )
+                    }
+                    PlumSymbol(
+                        hidConnection,
+                        "PAGEDOWN",
+                        label = "PGDN",
+                        modifier = Modifier.height(height = 40.dp)
+                    )
+                }
             }
         }
     }
@@ -314,7 +388,7 @@ fun Plum(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .offset(-5.dp, 5.dp)
+                    .offset((-5).dp, 5.dp)
                     .size(5.dp)
                     .clip(shape = RoundedCornerShape(5.dp))
                     .background(
