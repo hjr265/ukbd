@@ -182,9 +182,7 @@ fun Axon(
                             firstY = it.getY(it.actionIndex)
                             lastX = it.getX(it.actionIndex)
                             lastY = it.getY(it.actionIndex)
-                            Log.d("", "XXXXXXXX ${(Date().time - tapAt)}")
                             if ((Date().time - tapAt) in (21..149)) {
-                                Log.d("", "XXXXXXXX")
                                 tapDragging = true
                                 onTapDragStart()
                             }
