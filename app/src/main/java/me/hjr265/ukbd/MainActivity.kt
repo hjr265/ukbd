@@ -14,11 +14,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.Flow
@@ -62,7 +65,8 @@ class MainActivity : ComponentActivity(), KeyboardService.Listener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val bluetoothAdapter: BluetoothAdapter? = getSystemService(BluetoothManager::class.java).adapter
+        val bluetoothAdapter: BluetoothAdapter? =
+            getSystemService(BluetoothManager::class.java).adapter
 
         if (bluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_SHORT).show()
@@ -101,7 +105,13 @@ class MainActivity : ComponentActivity(), KeyboardService.Listener {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Combo(hidConnectionState.value, capsLockState.value)
+                    BoxWithConstraints(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        val scale = (maxWidth / 855.dp)
+                        Combo(hidConnectionState.value, capsLockState.value, scale)
+                    }
                 }
             }
         }

@@ -1,7 +1,6 @@
 package me.hjr265.ukbd
 
 import android.Manifest
-import android.util.Log
 import android.view.MotionEvent
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.Image
@@ -11,10 +10,11 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -46,8 +45,9 @@ import java.util.TimerTask
 @Composable
 fun Touchpad(
     hidConnection: Connection?,
-    togglePlum: @Composable () -> Unit,
-    settingsPlum: @Composable () -> Unit
+    togglePlum: @Composable (Modifier) -> Unit,
+    settingsPlum: @Composable (Modifier) -> Unit,
+    scale: Float = 1f
 ) {
     var wheelDelta by remember { mutableStateOf(0) }
 
@@ -69,23 +69,30 @@ fun Touchpad(
 
     Column {
         Row {
+            val itemModifier = Modifier
+                .width((scale * 55).dp)
+                .height((scale * 50).dp)
+
             Spacer(modifier = Modifier.weight(1f))
             Row {
-                togglePlum()
-                settingsPlum()
+                togglePlum(itemModifier)
+                settingsPlum(itemModifier)
             }
         }
         Row {
             Column {
+                val itemModifier = Modifier
+                    .width((scale * 55).dp)
+
                 Plum(
-                    modifier = Modifier.weight(0.5f),
+                    modifier = itemModifier.weight(0.5f),
                     onDown = { hidConnection?.mouseDown(0) },
                     onUp = { hidConnection?.mouseUp(0) },
                     enabled = hidConnection != null,
                     imageId = R.drawable.leftmouse,
                 )
                 Plum(
-                    modifier = Modifier.weight(0.5f),
+                    modifier = itemModifier.weight(0.5f),
                     onDown = { hidConnection?.mouseDown(1) },
                     onUp = { hidConnection?.mouseUp(1) },
                     enabled = hidConnection != null,
@@ -112,8 +119,11 @@ fun Touchpad(
             }
 
             Column {
+                val itemModifier = Modifier
+                    .width((scale * 55).dp)
+
                 Axon(
-                    modifier = Modifier.weight(1f),
+                    modifier = itemModifier.weight(1f),
                     onTap = { hidConnection?.mouseClick(2) },
                     onStretch = { _: Float, deltaY: Float ->
                         wheelDelta = if (deltaY in -0.05f..0.05f) 0 else (deltaY * 16).toInt()
@@ -161,7 +171,6 @@ fun Axon(
 
     Box(
         modifier = modifier
-            .defaultMinSize(55.dp, 50.dp)
             .padding(1.dp)
             .clip(shape = RoundedCornerShape(5.dp))
             .background(
